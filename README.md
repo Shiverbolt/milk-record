@@ -2,6 +2,8 @@
 
 A daily milk-delivery log that works the way a paper record does, with the arithmetic done for you. Tap a day, pick how much came (¼ L steps or any amount), and see what you owe since the last payment.
 
+**[Try the live demo →](https://shiverbolt.github.io/milk-record/)**
+
 ## What it does
 
 - **Calendar of deliveries**: each day fills like a glass, sized to the amount delivered, with fractional quantities such as ¾ L.
@@ -58,6 +60,8 @@ docker compose up -d --build
 ```
 
 Then open `http://<your-PC's-IP>:8085` on any device on your network. Data lives in the `milk-record_milk-data` Docker volume, so it survives rebuilds.
+
+The server starts with an empty record. To start from existing history instead, put a `seed.json` next to `server.js` before the first run, in the same format as an app backup (`rate`, `months`, `payments`).
 
 ## Data and privacy
 

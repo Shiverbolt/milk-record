@@ -8,6 +8,7 @@ app/www/fonts/
 
 # Personal data: your own delivery history backup
 app/milk-record-backup.json
+docker/seed.json
 
 # Machine-specific paths and release signing secrets
 local.properties
