@@ -8,7 +8,8 @@
     "icons": "node scripts/make-icons.mjs && npx capacitor-assets generate --android",
     "sync": "npm run fonts && npx cap sync android",
     "build:debug": "npm run sync && node scripts/gradle.mjs assembleDebug",
-    "build:release": "npm run sync && node scripts/gradle.mjs bundleRelease"
+    "build:release": "npm run sync && node scripts/gradle.mjs bundleRelease",
+    "demo": "node scripts/make-demo.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.5.2",

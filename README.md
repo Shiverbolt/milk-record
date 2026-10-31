@@ -15,9 +15,22 @@ A daily milk-delivery log that works the way a paper record does, with the arith
 
 | Folder | What it is |
 |---|---|
+| [`demo/`](demo) | A browser demo of the app with sample data. Open `demo/index.html` or host the folder anywhere static. |
 | [`app/`](app) | The Android app (Capacitor 8, targets Android 16). Everything is stored on the phone; no account, no network. |
 | [`docker/`](docker) | A home-server version: a small Node server plus the page, so every device on your network shares one record. |
 | [`milk-record.html`](milk-record.html) | The first version of the page, kept for reference. |
+
+### Try it in your browser
+
+[`demo/index.html`](demo/index.html) is the full app as a web page. It starts with about 80 days of sample deliveries, payments and remarks, dated relative to today. Anything you change stays in your own browser, and **Reset demo** brings the sample back.
+
+Open the file directly, or serve the folder:
+
+```bash
+npx http-server demo
+```
+
+The demo is generated from the app's page, so it never drifts from the real thing. After changing `app/www/index.html`, run `npm run demo` in `app/` to refresh it.
 
 ### Android app
 
