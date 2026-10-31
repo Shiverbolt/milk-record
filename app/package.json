@@ -1,0 +1,27 @@
+{
+  "name": "milk-record-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Milk Delivery Record for Android: log daily milk in fractional litres and track payments.",
+  "scripts": {
+    "fonts": "node scripts/copy-fonts.mjs",
+    "icons": "node scripts/make-icons.mjs && npx capacitor-assets generate --android",
+    "sync": "npm run fonts && npx cap sync android",
+    "build:debug": "npm run sync && node scripts/gradle.mjs assembleDebug",
+    "build:release": "npm run sync && node scripts/gradle.mjs bundleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.5.2",
+    "@capacitor/filesystem": "8.1.5",
+    "@capacitor/preferences": "8.0.1",
+    "@capacitor/share": "8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "3.0.5",
+    "@capacitor/cli": "8.5.2",
+    "@fontsource/bricolage-grotesque": "5.2.8",
+    "@fontsource/figtree": "5.2.8"
+  }
+}

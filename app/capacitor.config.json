@@ -1,0 +1,11 @@
+{
+  "appId": "com.shiva.milkrecord",
+  "appName": "Milk Record",
+  "webDir": "www",
+  "backgroundColor": "#FFF9EC",
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css"
+    }
+  }
+}

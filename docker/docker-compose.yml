@@ -1,0 +1,17 @@
+name: milk-record
+
+services:
+  milk-record:
+    build: .
+    image: milk-record:latest
+    container_name: milk_record
+    ports:
+      - "8085:8080"
+    volumes:
+      - milk-data:/data
+    environment:
+      - TZ=Asia/Kolkata
+    restart: unless-stopped
+
+volumes:
+  milk-data:

@@ -1,0 +1,21 @@
+# Dependencies and build output
+node_modules/
+*.apk
+*.aab
+
+# Fonts copied in by `npm run fonts`
+app/www/fonts/
+
+# Personal data: your own delivery history backup
+app/milk-record-backup.json
+
+# Machine-specific paths and release signing secrets
+local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# Editor and tool settings
+.claude/
+.vscode/
+.idea/
