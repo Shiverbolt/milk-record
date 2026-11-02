@@ -6,6 +6,10 @@
   "plugins": {
     "SystemBars": {
       "insetsHandling": "css"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_milk",
+      "iconColor": "#E0A21F"
     }
   }
 }

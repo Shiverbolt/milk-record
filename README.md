@@ -8,7 +8,9 @@ A daily milk-delivery log that works the way a paper record does, with the arith
 
 - **Calendar of deliveries**: each day fills like a glass, sized to the amount delivered, with fractional quantities such as ¾ L.
 - **Automatic billing**: litres × your per-litre rate, grouped into cycles that each payment closes.
-- **Bills for the milk seller**: one image per cycle, with a calendar of quantities, remarks and the paid-vs-owed summary, shared through Android's share sheet.
+- **Current bill up top**: what you owe since the last payment, with a bar showing how far through the billing cycle you are and when it falls due.
+- **Billing cycle and reminders**: pick a cycle length (7, 15, 30 days or any number); the app notifies you the day before the bill is due and on the day.
+- **Bills for the milk seller**: one image per cycle, with a calendar of quantities, remarks and the paid-vs-owed summary. **Send** opens WhatsApp on the seller's chat with the bill attached (or SMS with the summary), ready for you to tap send.
 - **Remarks** on any day ("came late", "not delivered, festival").
 - **Seasons**: every month has its own colours and a background animation (snow, petals, sun, rain, leaves), following Indian seasons.
 - **Settings**: currency, usual daily quantity, theme, seasonal colours and animations, storage use, backup and restore, and clearing data by month, by year or all at once.

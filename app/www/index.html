@@ -158,9 +158,22 @@ button { cursor: pointer; }
 
 /* Due card */
 .due {
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow);
-  padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow);
+  padding: 18px 20px; display: grid; gap: 14px;
 }
+.due-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.due-main { min-width: 0; }
+.due-pill { flex: none; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.due-pill.soon { background: color-mix(in srgb, var(--warn) 16%, var(--surface)); color: var(--warn); }
+.due-pill.today, .due-pill.over { background: var(--danger); color: #fff; }
+.due-pill.over { animation: throb 2.4s ease-in-out infinite; }
+@keyframes throb { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--danger) 18%, transparent); } }
+.due-cycle { display: grid; gap: 6px; }
+.due-track { height: 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+.due-track i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--fill-deep), var(--accent)); transition: width 1s cubic-bezier(.22, 1, .36, 1); }
+.due-ends { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; font-weight: 600; }
+.due-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.due-actions .btn { flex: 1 1 140px; }
 .due .k { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .due .amt { font-family: var(--f-display); font-size: 34px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
 .due .sub { color: var(--muted); font-size: 14px; }
@@ -313,6 +326,13 @@ form.pay { display: grid; gap: 12px; }
 .btn.danger-solid { background: var(--danger); color: #fff; }
 .btn[disabled] { opacity: .45; cursor: default; filter: none; transform: none; }
 .btn.armed { animation: nudge .3s; }
+.cycle-pick { display: grid; gap: 8px; justify-items: end; }
+.cycle-custom { color: var(--muted); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.cycle-custom input, .time-in { width: 70px; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 6px 8px; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
+.time-in { width: auto; }
+.set-row.stack { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.set-row.stack .field input { background: var(--surface); }
+@media (max-width: 420px) { .set-row.stack { grid-template-columns: 1fr; } .cycle-pick { justify-items: start; } }
 @keyframes nudge { 30% { transform: translateX(-3px); } 60% { transform: translateX(3px); } }
 .cycle .acts { display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 4px; }
 .bill-btn {
@@ -426,6 +446,24 @@ body { margin: 0; }
     </div>
   </header>
 
+  <section class="due" id="dueCard" aria-live="polite">
+    <div class="due-top">
+      <div class="due-main">
+        <div class="k" id="dueLabel">Current bill</div>
+        <div class="amt num" id="dueAmt">₹0</div>
+        <div class="sub" id="dueSub">Loading your record…</div>
+      </div>
+      <span class="due-pill" id="duePill" hidden></span>
+    </div>
+    <div class="due-cycle" id="dueCycle" hidden>
+      <div class="due-track"><i id="dueBar"></i></div>
+      <div class="due-ends"><span id="dueStart"></span><span id="dueEnd"></span></div>
+    </div>
+    <div class="due-actions">
+      <button class="btn ghost" id="sendBillBtn" type="button">Send bill</button>
+      <button class="btn" id="settleBtn" type="button">Record payment</button>
+    </div>
+  </section>
   <section class="hero">
     <canvas class="season-fx" id="heroFx" aria-hidden="true"></canvas>
     <div class="glass" aria-hidden="true">
@@ -468,14 +506,7 @@ body { margin: 0; }
     </div>
   </section>
 
-  <section class="due" aria-live="polite">
-    <div>
-      <div class="k">Due since last payment</div>
-      <div class="amt num" id="dueAmt">₹0</div>
-      <div class="sub" id="dueSub">Loading your record…</div>
-    </div>
-    <button class="btn" id="settleBtn">Record payment</button>
-  </section>
+
 
   <section class="card">
     <div class="card-head">
@@ -526,6 +557,39 @@ body { margin: 0; }
       </section>
 
       <section class="set-group">
+        <h5>Billing</h5>
+        <div class="set-row">
+          <div><b>Billing cycle</b><span>A bill falls due this many days after the cycle starts (the day after your last payment)</span></div>
+          <div class="cycle-pick">
+            <div class="seg" id="setCycle" role="radiogroup" aria-label="Billing cycle presets"></div>
+            <label class="cycle-custom">Every <input id="setCycleDays" type="number" min="1" max="90" inputmode="numeric" aria-label="Days in a billing cycle"> days</label>
+          </div>
+        </div>
+        <label class="set-row toggle">
+          <div><b>Bill reminders</b><span>A notification the day before the bill is due, and on the day</span></div>
+          <input type="checkbox" id="setRemind" role="switch"><i></i>
+        </label>
+        <div class="set-row" id="remindTimeRow">
+          <div><b>Reminder time</b></div>
+          <input id="setRemindTime" type="time" class="time-in" aria-label="Reminder time">
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h5>Milk seller</h5>
+        <div class="set-row stack">
+          <div class="field"><label for="setSellerName">Name</label><input id="setSellerName" type="text" maxlength="60" placeholder="e.g. Gopal Dairy"></div>
+          <div class="field"><label for="setSellerPhone">Phone number</label><input id="setSellerPhone" type="tel" maxlength="20" inputmode="tel" placeholder="e.g. 98765 43210"></div>
+        </div>
+        <div class="set-row">
+          <div><b>Send bills by</b><span>The app opens the chat with the bill ready. You tap send.</span></div>
+          <div class="seg" id="setSendVia" role="radiogroup" aria-label="Send bills by">
+            <button type="button" data-v="whatsapp">WhatsApp</button><button type="button" data-v="sms">SMS</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="set-group">
         <h5>Look and feel</h5>
         <div class="set-row">
           <div><b>Theme</b></div>
@@ -566,7 +630,7 @@ body { margin: 0; }
           </div>
         </div>
       </section>
-      <p class="set-note center">Milk Record 1.1</p>
+      <p class="set-note center">Milk Record 1.2</p>
     </div>
   </div>
 </div>
@@ -620,7 +684,8 @@ body { margin: 0; }
     <div class="sheet-actions" style="justify-content:flex-end">
       <div class="right">
         <button class="btn plain" type="button" id="billClose">Close</button>
-        <button class="btn" type="button" id="billShare">Share bill</button>
+        <button class="btn ghost" type="button" id="billShare">Share…</button>
+        <button class="btn" type="button" id="billSend">Send to seller</button>
       </div>
     </div>
   </div>
@@ -666,9 +731,9 @@ body { margin: 0; }
     months: {},       // "2026-10" -> { "14": 1, "20": 0.75 }
     payments: [],     // { id, date, amount, note }
     rate: 50,
-    profile: { customer: "", seller: "" },
+    profile: { customer: "", seller: "", sellerPhone: "" },
     notes: {},        // "2026-10-20" -> "Came late"
-    settings: { currency: "INR", dailyQty: 1, theme: "system", seasonColors: true, seasonFx: true },
+    settings: { currency: "INR", dailyQty: 1, theme: "system", seasonColors: true, seasonFx: true, cycleDays: 30, remind: true, remindTime: "09:00", sendVia: "whatsapp", notifAsked: false },
     view: { y: today.getFullYear(), m: today.getMonth() },
     db: null, readOnly: false, loaded: false,
   };
@@ -773,16 +838,39 @@ body { margin: 0; }
     $("logToday").disabled = !!tq || state.readOnly;
   }
 
+  // The running cycle starts the day after the last payment (or at the first
+  // delivery) and falls due `cycleDays` later, counting the start day.
+  const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return ymd(d); };
+  const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
+  function billingInfo() {
+    const open = cycles().slice(-1)[0];
+    const start = open.from, due = addDays(start, state.settings.cycleDays - 1);
+    return { open, start, due, daysLeft: daysBetween(todayStr, due), elapsed: daysBetween(start, todayStr) + 1 };
+  }
+
   function renderLedger() {
     const cs = cycles();
     const open = cs[cs.length - 1];
     const litres = open.items.reduce((a, x) => a + x.qty, 0);
     const lastPay = sortedPayments().slice(-1)[0];
+    const bill = billingInfo();
     tween($("dueAmt"), litres * state.rate, (v) => rupee(Math.round(v * 100) / 100));
+    $("dueLabel").textContent = open.items.length ? `Current bill · since ${shortDate(bill.start)}` : "Current bill";
     $("dueSub").textContent = !state.loaded ? "Loading your record…"
       : open.items.length
-        ? `${fmtQty(litres)} L over ${open.items.length} day${open.items.length > 1 ? "s" : ""} (${shortDate(open.items[0].date)} – ${shortDate(open.items[open.items.length - 1].date)})${lastPay ? ` · last paid ${shortDate(lastPay.date)}` : ""}`
+        ? `${fmtQty(litres)} L over ${open.items.length} day${open.items.length > 1 ? "s" : ""}${lastPay ? ` · last paid ${shortDate(lastPay.date)}` : ""}`
         : lastPay ? `All settled · last paid ${rupee(lastPay.amount)} on ${shortDate(lastPay.date)}` : "No deliveries logged yet. Tap a day below to add one.";
+    const pill = $("duePill"), cyc = $("dueCycle");
+    pill.hidden = cyc.hidden = !open.items.length;
+    $("sendBillBtn").disabled = !open.items.length;
+    if (open.items.length) {
+      const left = bill.daysLeft;
+      pill.className = "due-pill" + (left < 0 ? " over" : left === 0 ? " today" : left === 1 ? " soon" : "");
+      pill.textContent = left < 0 ? `Overdue by ${-left} day${left < -1 ? "s" : ""}` : left === 0 ? "Due today" : left === 1 ? "Due tomorrow" : `Due in ${left} days`;
+      $("dueBar").style.width = `${Math.min(100, Math.max(4, (bill.elapsed / state.settings.cycleDays) * 100))}%`;
+      $("dueStart").textContent = `${shortDate(bill.start)} · day ${Math.min(bill.elapsed, 999)} of ${state.settings.cycleDays}`;
+      $("dueEnd").textContent = `Due ${shortDate(bill.due)}`;
+    }
 
     const box = $("cycles");
     box.innerHTML = "";
@@ -854,6 +942,7 @@ body { margin: 0; }
   function persist() {
     const json = JSON.stringify(snapshot());
     saving = saving.then(() => store.set(json)).catch(() => toast("Couldn't save on this phone. Try again."));
+    scheduleReminders();
   }
   function persistSettings() {
     const json = JSON.stringify(state.settings);
@@ -1339,12 +1428,13 @@ body { margin: 0; }
     $("billSub").textContent = `${longDate(c.from)} – ${longDate(c.to)}`;
     $("billCustomer").value = state.profile.customer;
     $("billSeller").value = state.profile.seller;
+    $("billSend").textContent = `Send on ${state.settings.sendVia === "sms" ? "SMS" : "WhatsApp"}`;
     $("billPreview").innerHTML = `<div class="wait">Preparing bill…</div>`;
     openDialog("billScrim");
     refreshBill();
   }
   ["billCustomer", "billSeller"].forEach((id) => $(id).addEventListener("input", () => {
-    state.profile = { customer: $("billCustomer").value.trim(), seller: $("billSeller").value.trim() };
+    state.profile = { ...state.profile, customer: $("billCustomer").value.trim(), seller: $("billSeller").value.trim() };
     clearTimeout(billT);
     billT = setTimeout(() => { persist(); refreshBill(); }, 400);
   }));
@@ -1366,6 +1456,109 @@ body { margin: 0; }
     }
   });
 
+  // ---------- sending the bill to the seller ----------
+  // Android won't let an app send a message by itself, so this opens WhatsApp on the
+  // seller's chat with the bill image attached (or SMS with the summary) and the
+  // person taps send. In a browser it downloads the image and opens wa.me / sms:.
+  function sellerNumber() {
+    let digits = String(state.profile.sellerPhone || "").replace(/\D/g, "");
+    if (digits.length === 10 && state.settings.currency === "INR") digits = "91" + digits;
+    return digits;
+  }
+  function billMessage(c) {
+    const litres = round(c.items.reduce((a, x) => a + x.qty, 0));
+    const rate = c.pay && typeof c.pay.rate === "number" ? c.pay.rate : state.rate;
+    const hi = state.profile.seller ? `Hi ${state.profile.seller}, ` : "Hi, ";
+    const what = c.pay ? `here is the milk bill for ${longDate(c.from)} to ${longDate(c.to)}` : `here is the milk bill from ${longDate(c.from)} to ${longDate(c.to)}`;
+    const sum = `${fmtQty(litres)} L × ${rupee(rate)} = ${rupee(round(litres * rate))}`;
+    const paid = c.pay ? ` Paid ${rupee(c.pay.amount)} on ${longDate(c.pay.date)}.` : "";
+    return `${hi}${what}: ${sum}.${paid}${state.profile.customer ? ` – ${state.profile.customer}` : ""}`;
+  }
+  async function sendBill(c) {
+    const phone = sellerNumber();
+    if (phone.length < 8) {
+      toast("Add the milk seller's phone number first");
+      closeDialog("billScrim");
+      syncSettingsUI(); openDialog("settingsScrim");
+      setTimeout(() => $("setSellerPhone").focus(), 350);
+      return;
+    }
+    const cv = billCycle === c && billCanvas ? billCanvas : await drawBill(c);
+    const dataUrl = cv.toDataURL("image/png"), text = billMessage(c), via = state.settings.sendVia;
+    const name = `milk-bill-${c.from}-to-${c.to}.png`;
+    try {
+      if (isNative && Plugins.BillSender && Plugins.Filesystem) {
+        const { uri } = await Plugins.Filesystem.writeFile({ path: name, data: dataUrl.split(",")[1], directory: "CACHE" });
+        try {
+          await Plugins.BillSender.send({ phone, text, via, path: uri });
+        } catch (e) {
+          if (e && e.code === "NO_WHATSAPP") {
+            toast("WhatsApp isn't installed. Pick another app.");
+            await Plugins.Share.share({ title: "Milk bill", text, files: [uri], dialogTitle: "Send the bill" });
+          } else throw e;
+        }
+      } else {
+        const img = document.createElement("a"); img.href = dataUrl; img.download = name; img.click();
+        const link = document.createElement("a");
+        link.href = via === "sms" ? `sms:+${phone}?body=${encodeURIComponent(text)}` : `https://wa.me/${phone}?text=${encodeURIComponent(text + " (bill image attached)")}`;
+        link.target = "_blank"; link.rel = "noopener"; link.click();
+        toast("Bill image downloaded. Attach it in the chat that opened.");
+      }
+    } catch (e) {
+      if (!/cancel/i.test(String(e && e.message))) toast("Couldn't open the chat. Try Share… instead.");
+    }
+  }
+  $("billSend").addEventListener("click", () => { if (billCycle) sendBill(billCycle); });
+  $("sendBillBtn").addEventListener("click", () => { const open = cycles().slice(-1)[0]; if (open.items.length) openBill(open); });
+
+  // ---------- bill reminders ----------
+  // Two local notifications per cycle: the day before the due date and on the day,
+  // at the chosen time. They are rebuilt whenever the record or settings change.
+  const REMIND_IDS = [7101, 7102];
+  let remindT, openBillWhenReady = false;
+  async function ensureNotifyPermission() {
+    const LN = isNative && Plugins.LocalNotifications;
+    if (!LN) return false;
+    try {
+      let p = await LN.checkPermissions();
+      if (p.display === "prompt" || p.display === "prompt-with-rationale") p = await LN.requestPermissions();
+      return p.display === "granted";
+    } catch { return false; }
+  }
+  function scheduleReminders() { clearTimeout(remindT); remindT = setTimeout(rebuildReminders, 800); }
+  async function rebuildReminders() {
+    const LN = isNative && Plugins.LocalNotifications;
+    if (!LN) return;
+    try {
+      await LN.cancel({ notifications: REMIND_IDS.map((id) => ({ id })) });
+      const S = state.settings;
+      if (!S.remind) return;
+      const perm = await LN.checkPermissions();
+      if (perm.display !== "granted") return;
+      const { open, due } = billingInfo();
+      if (!open.items.length) return;
+      const litres = round(open.items.reduce((a, x) => a + x.qty, 0));
+      const [hh, mm] = S.remindTime.split(":").map(Number);
+      const at = (s) => { const d = parse(s); d.setHours(hh, mm, 0, 0); return d; };
+      const who = state.profile.seller ? ` to ${state.profile.seller}` : "";
+      const body = `${rupee(round(litres * state.rate))} so far for ${fmtQty(litres)} L since ${shortDate(open.from)}. Tap to send the bill${who}.`;
+      const list = [
+        { id: REMIND_IDS[0], title: "Milk bill due tomorrow", body, schedule: { at: at(addDays(due, -1)), allowWhileIdle: true }, extra: { action: "bill" } },
+        { id: REMIND_IDS[1], title: "Milk bill due today", body, schedule: { at: at(due), allowWhileIdle: true }, extra: { action: "bill" } },
+      ].filter((n) => n.schedule.at > new Date());
+      if (list.length) await LN.schedule({ notifications: list });
+    } catch {}
+  }
+  function openCurrentBill() {
+    const open = cycles().slice(-1)[0];
+    if (open.items.length) openBill(open);
+  }
+  if (isNative && Plugins.LocalNotifications) {
+    Plugins.LocalNotifications.addListener("localNotificationActionPerformed", () => {
+      if (state.loaded) openCurrentBill(); else openBillWhenReady = true;
+    });
+  }
+
   // ---------- backup ----------
   function applyRecord(data) {
     state.months = {};
@@ -1380,7 +1573,7 @@ body { margin: 0; }
       .map((p, i) => ({ id: String(p.id || "p" + i), date: p.date, amount: Number(p.amount), note: String(p.note || "").slice(0, 80), ...(Number(p.rate) >= 0 && p.rate != null ? { rate: Number(p.rate) } : {}) }));
     state.notes = {};
     for (const [k, v] of Object.entries(data.notes || {})) if (/^\d{4}-\d{2}-\d{2}$/.test(k) && typeof v === "string" && v.trim()) state.notes[k] = v.trim().slice(0, 120);
-    if (data.profile) state.profile = { customer: String(data.profile.customer || "").slice(0, 60), seller: String(data.profile.seller || "").slice(0, 60) };
+    if (data.profile) state.profile = { customer: String(data.profile.customer || "").slice(0, 60), seller: String(data.profile.seller || "").slice(0, 60), sellerPhone: String(data.profile.sellerPhone || "").replace(/[^\d+ -]/g, "").slice(0, 20) };
     if (typeof data.rate === "number" && data.rate >= 0) { state.rate = data.rate; $("rate").value = state.rate; }
   }
   $("exportBtn").addEventListener("click", async () => {
@@ -1436,6 +1629,11 @@ body { margin: 0; }
       theme: ["system", "light", "dark"].includes(s.theme) ? s.theme : d.theme,
       seasonColors: typeof s.seasonColors === "boolean" ? s.seasonColors : d.seasonColors,
       seasonFx: typeof s.seasonFx === "boolean" ? s.seasonFx : d.seasonFx,
+      cycleDays: Number.isInteger(Number(s.cycleDays)) && s.cycleDays >= 1 && s.cycleDays <= 90 ? Number(s.cycleDays) : d.cycleDays,
+      remind: typeof s.remind === "boolean" ? s.remind : d.remind,
+      remindTime: /^\d{2}:\d{2}$/.test(s.remindTime) ? s.remindTime : d.remindTime,
+      sendVia: ["whatsapp", "sms"].includes(s.sendVia) ? s.sendVia : d.sendVia,
+      notifAsked: typeof s.notifAsked === "boolean" ? s.notifAsked : d.notifAsked,
     };
   }
   // Pushes settings into the page: theme attribute, currency labels, then a full render.
@@ -1448,6 +1646,7 @@ body { margin: 0; }
     $("rate").setAttribute("aria-label", `Rate per litre in ${CURRENCIES[S.currency][0]}`);
     applySeason(true);
     render();
+    scheduleReminders();
   }
   function updateSetting(patch) {
     state.settings = cleanSettings({ ...state.settings, ...patch });
@@ -1464,6 +1663,21 @@ body { margin: 0; }
   $("setTheme").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) updateSetting({ theme: b.dataset.v }); });
   $("setSeasonColors").addEventListener("change", (e) => updateSetting({ seasonColors: e.target.checked }));
   $("setSeasonFx").addEventListener("change", (e) => updateSetting({ seasonFx: e.target.checked }));
+  const CYCLE_CHOICES = [7, 15, 30];
+  $("setCycle").innerHTML = CYCLE_CHOICES.map((n) => `<button type="button" data-v="${n}">${n} days</button>`).join("");
+  $("setCycle").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) updateSetting({ cycleDays: Number(b.dataset.v) }); });
+  $("setCycleDays").addEventListener("change", (e) => { const n = Math.round(Number(e.target.value)); if (n >= 1 && n <= 90) updateSetting({ cycleDays: n }); else e.target.value = state.settings.cycleDays; });
+  $("setRemind").addEventListener("change", async (e) => {
+    if (e.target.checked && !(await ensureNotifyPermission())) { e.target.checked = false; toast("Notifications are off for Milk Record. Turn them on in Android settings."); return; }
+    updateSetting({ remind: e.target.checked });
+  });
+  $("setRemindTime").addEventListener("change", (e) => updateSetting({ remindTime: e.target.value }));
+  $("setSendVia").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) updateSetting({ sendVia: b.dataset.v }); });
+  let sellerT;
+  ["setSellerName", "setSellerPhone"].forEach((id) => $(id).addEventListener("input", () => {
+    state.profile = { ...state.profile, seller: $("setSellerName").value.trim().slice(0, 60), sellerPhone: $("setSellerPhone").value.replace(/[^\d+ -]/g, "").slice(0, 20) };
+    clearTimeout(sellerT); sellerT = setTimeout(() => { persist(); render(); }, 400);
+  }));
 
   function syncSettingsUI() {
     const S = state.settings;
@@ -1472,6 +1686,15 @@ body { margin: 0; }
     $("setTheme").querySelectorAll("button").forEach((b) => { const on = b.dataset.v === S.theme; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); b.setAttribute("role", "radio"); });
     $("setSeasonColors").checked = S.seasonColors;
     $("setSeasonFx").checked = S.seasonFx;
+    $("setCycle").querySelectorAll("button").forEach((b) => { const on = Number(b.dataset.v) === S.cycleDays; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); b.setAttribute("role", "radio"); });
+    if (document.activeElement !== $("setCycleDays")) $("setCycleDays").value = S.cycleDays;
+    $("setRemind").checked = S.remind;
+    $("setRemindTime").value = S.remindTime;
+    $("remindTimeRow").hidden = !S.remind || !isNative;
+    $("setRemind").closest(".set-row").hidden = !isNative;
+    $("setSendVia").querySelectorAll("button").forEach((b) => { const on = b.dataset.v === S.sendVia; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); b.setAttribute("role", "radio"); });
+    if (document.activeElement !== $("setSellerName")) $("setSellerName").value = state.profile.seller;
+    if (document.activeElement !== $("setSellerPhone")) $("setSellerPhone").value = state.profile.sellerPhone || "";
     renderStorage();
   }
 
@@ -1542,7 +1765,7 @@ body { margin: 0; }
     toast(`Deleted ${ks.length} month${ks.length > 1 ? "s" : ""}`);
   }));
   $("clearAll").addEventListener("click", (e) => armed(e.currentTarget, "Tap again to erase all", () => {
-    state.months = {}; state.notes = {}; state.payments = []; state.profile = { customer: "", seller: "" };
+    state.months = {}; state.notes = {}; state.payments = []; state.profile = { customer: "", seller: "", sellerPhone: "" };
     selectedMonths.clear();
     persist(); render(); renderStorage();
     toast("Everything erased. Your settings are kept.");
@@ -1579,6 +1802,13 @@ body { margin: 0; }
     }
     state.loaded = true;
     applySettings();
+    // Ask for notification permission once, so reminders can work from the start.
+    if (isNative && state.settings.remind && !state.settings.notifAsked) {
+      const ok = await ensureNotifyPermission();
+      state.settings = { ...state.settings, notifAsked: true, remind: ok };
+      persistSettings(); syncSettingsUI(); scheduleReminders();
+    }
+    if (openBillWhenReady) openCurrentBill();
   })();
   // A new day began while the app sat open: re-render with the right "today".
   document.addEventListener("visibilitychange", () => { if (!document.hidden && ymd(new Date()) !== todayStr) location.reload(); });

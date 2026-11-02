@@ -8,6 +8,10 @@ Milk Record helps you keep a log of daily milk deliveries and the payments you m
 
 **What the app collects.** Nothing. The app has no account, no analytics, no ads, and no internet connection of its own. Your record is never sent to the developer or to anyone else.
 
+**Reminders.** If you allow notifications, the app schedules bill reminders on your phone. Nothing is sent anywhere to do this.
+
+**Sending bills.** The milk seller's name and phone number you enter are stored only on your phone. When you tap "Send", the app opens WhatsApp or your SMS app with the bill ready; nothing is sent until you send it there yourself.
+
 **Backups.** When you tap "Save backup", the app makes a file and opens Android's share sheet. The file goes only where you choose to send or save it.
 
 **Deleting your data.** Uninstalling the app, or clearing its storage in Android Settings, deletes your record from the phone.

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status-bar icon for bill reminders: a white milk bottle silhouette. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M9,2h6v2.2l2.2,3.3c0.2,0.3 0.3,0.6 0.3,1V20a2,2 0,0 1,-2 2H8.5a2,2 0,0 1,-2 -2V8.5c0,-0.4 0.1,-0.7 0.3,-1L9,4.2zM8.5,13v7h7v-7c-1.2,0.8 -2.3,0.8 -3.5,0s-2.3,-0.8 -3.5,0z" />
+</vector>
